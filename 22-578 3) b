@@ -1,0 +1,47 @@
+b) Program to recognize a valid variable which starts with a letter followed by any 	number of letter or digits.
+
+var.l
+%{
+#include "y.tab.h"
+%}
+%%
+[a-zA-Z][a-zA-Z0-9]*    { return VARIABLE; }
+.|\n                    { return yytext[0]; }
+
+%%
+int yywrap()
+{
+    return 1;
+}
+
+var.y
+%{
+#include <stdio.h>
+%}
+%token VARIABLE
+
+%%
+input:
+    VARIABLE '\n'     { printf("Valid variable\n"); return 0; }
+  | '\n'              { printf("Empty input\n"); return 0; }
+  ;
+%%
+
+int main() {
+    printf("Enter a variable name:\n");
+    yyparse();
+    return 0;
+}
+int yyerror(const char *msg) {
+    printf("Invalid variable: %s\n", msg);
+    return 0;
+}
+
+OUTPUT
+kits@kits-Veriton-M200-B360:~/Desktop$ yacc -d var.y
+kits@kits-Veriton-M200-B360:~/Desktop$ lex var.l
+kits@kits-Veriton-M200-B360:~/Desktop$ gcc lex.yy.c y.tab.c -o varcheck
+kits@kits-Veriton-M200-B360:~/Desktop$ ./varcheck
+Enter a variable name:
+username
+Valid variable
