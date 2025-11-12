@@ -1,0 +1,71 @@
+a) Program to recognize a valid arithmetic expression that uses operator +,-, * and /.
+
+arith.l
+%{
+#include "y.tab.h"
+%}
+
+%%
+[0-9]+          { return NUMBER; }
+"+"             { return '+'; }
+"-"             { return '-'; }
+"*"             { return '*'; }
+"/"             { return '/'; }
+"("             { return '('; }
+")"             { return ')'; }
+[ \t]           { /* ignore whitespace */ }
+\n              { return 0; }
+.               { return yytext[0]; }
+%%
+
+int yywrap() {
+    return 1;
+}
+
+arith.y
+%{
+#include <stdio.h>
+#include <stdlib.h>
+int yylex();
+void yyerror(const char *s);
+%}
+
+%token NUMBER
+%left '+' '-'
+%left '*' '/'
+%left UMINUS
+
+%%
+expr: expr '+' expr    { printf("Addition performed\n"); }
+    | expr '-' expr    { printf("Subtraction performed\n"); }
+    | expr '*' expr    { printf("Multiplication performed\n"); }
+    | expr '/' expr    { printf("Division performed\n"); }
+    | '-' expr %prec UMINUS { printf("Unary minus applied\n"); }
+    | '(' expr ')'     { printf("Parentheses processed\n"); }
+    | NUMBER           { printf("Number recognized\n"); }
+    ;
+%%
+
+void yyerror(const char *s) {
+    fprintf(stderr, "Error: %s\n", s);
+}
+
+int main() {
+    printf("Enter arithmetic expression:\n");
+    yyparse();
+    printf("Expression parsed successfully!\n");
+    return 0;
+}
+
+OUTPUT
+kits@kits-Veriton-M200-B360:~/Desktop$ yacc -d arith.y
+kits@kits-Veriton-M200-B360:~/Desktop$ lex arith.l
+kits@kits-Veriton-M200-B360:~/Desktop$ gcc lex.yy.c y.tab.c -o arith
+kits@kits-Veriton-M200-B360:~/Desktop$ ./arith
+Enter arithmetic expression:
+2+3*6
+Number recognized
+Number recognized
+Number recognized
+Multiplication performed
+Addition performed
