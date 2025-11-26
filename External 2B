@@ -1,0 +1,37 @@
+Write a lex program to count the number of words and number of lines in a given file or program.
+
+cdlab8.l
+%{
+int ccnt=0, wcnt=0, lcnt=0;
+%}
+
+word [^ \t\n]+
+
+%%
+{word} { wcnt++; ccnt+=yyleng; }
+\n     { lcnt++; }
+.      { ccnt++; }
+
+%%
+void main() {
+    yylex();
+    printf("\n The character count =%d", ccnt);
+    printf("\n The word count = %d", wcnt);
+    printf("\n The line count = %d", lcnt);
+    printf("\n");
+}
+
+int yywrap() {
+    return 1;
+}
+
+OUTPUT:
+kits@kits-Veriton-M200-H310:~/Desktop$ lex cdlab8.l
+kits@kits-Veriton-M200-H310:~/Desktop$ cc lex.yy.c
+kits@kits-Veriton-M200-H310:~/Desktop$ ./a.out
+cse
+cd lab
+
+The character count =9
+The word count = 3
+The line count = 2
